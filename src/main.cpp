@@ -43,8 +43,7 @@ int leftDistance = 0;
 int middleDistance = 0;
 int rightDistance = 0;
 
-void ledLights()
-{
+/*void ledLights() {
   {
     for (int brightness = 0; brightness <= 255; brightness++)
     {
@@ -68,7 +67,7 @@ void ledLights()
     }
   }
   delay(1000);
-}
+}*/
 
 void objectAdvoidise()
 {
@@ -77,7 +76,10 @@ void objectAdvoidise()
   Serial.println(middleDistance);
   if (middleDistance <= 25)
   {
+    digitalWrite(leftLED, HIGH);
+    digitalWrite(rightLED, HIGH);
     myCar.Move(Stop, 0);
+ 
 
     // Look right
     myServo.write(0);
@@ -91,89 +93,75 @@ void objectAdvoidise()
 
     // Reset servo to center
     myServo.write(90);
+digitalWrite(leftLED, LOW);
+    digitalWrite(rightLED, LOW);
 
     // Decide direction based on clear space
     if (rightDistance < 20 && leftDistance < 20)
     {
+    
+     
       myCar.Move(Backward, 180);
-      delay(500);
-      myCar.Move(Contrarotate, 180);
+       for (int i = 0; i < 2; i++) {
+        digitalWrite(leftLED, HIGH);
+        digitalWrite(rightLED, HIGH);
+        delay(125);
+        digitalWrite(leftLED, LOW);
+        digitalWrite(rightLED, LOW);
+        delay(125);
+}
+      delay(125);
+
+ for (int i = 0; i < 2; i++) {
+        digitalWrite(leftLED, HIGH);
+        digitalWrite(rightLED, HIGH);
+        delay(125);
+        digitalWrite(leftLED, LOW);
+        digitalWrite(rightLED, LOW);
+        delay(125);
+}
+     myCar.Move(Contrarotate, 180);
       delay(1000);
+     digitalWrite(leftLED, LOW);
+      digitalWrite(rightLED, LOW);  
+
     }
     else if (rightDistance > leftDistance)
     {
       // Right side has more room
+       digitalWrite(rightLED, HIGH);
+      digitalWrite(leftLED, LOW);
       myCar.Move(Clockwise, 180);
       delay(800);
+     digitalWrite(rightLED, LOW); // Turn off when finished
     }
     else
     {
       // Left side has more room (or equal)
+       digitalWrite(leftLED, HIGH);
+      digitalWrite(rightLED, LOW);
       myCar.Move(Contrarotate, 180);
       delay(800);
+      digitalWrite(leftLED, LOW); // Turn off when finished
+   
     }
   }
   else
   {
+    digitalWrite(leftLED, LOW);
+    digitalWrite(rightLED, LOW);
     myCar.Move(Forward, 150);
   }
 }
 
-/*middleDistance =myUltrasonic.Ranging();
-myServo.write(90);
-if(middleDistance<=25){
-myCar.Move(Stop,0);
-myServo.write(0);
-for(int angle =90;angle>=0;angle--){
-myServo.write(angle);
-delay(10);
-}
-
-delay(500);
-rightDistance =myUltrasonic.Ranging();
-for(int angle =0;angle<=180;angle++){
-myServo.write(angle);
-delay(10);
-}
-delay(500);
-leftDistance =myUltrasonic.Ranging();
-if(rightDistance<20&& leftDistance<20){
-myCar.Move(Backward,180);
-delay(500);
-myCar.Move(Contrarotate,180);
-delay(1000);
-}
-else if(rightDistance< leftDistance){
-myCar.Move(Backward,180);
-delay(500);
-myCar.Move(Clockwise,180);
-delay(1000);
-}
-else if(rightDistance< leftDistance){
-myCar.Move(Backward,180);
-delay(500);
-myCar.Move(Contrarotate,180);
-delay(1000);
-}
-else{
-myCar.Move(Backward,180);
-delay(500);
-myCar.Move(Clockwise,180);
-delay(1000);
-}
-}
-else{
-myCar.Move(Forward,150);
-}
-}*/
 
 void setup()
 {
   pinMode(leftLED, OUTPUT);
   pinMode(rightLED, OUTPUT);
 
-  analogWrite(leftLED, 50);
-  analogWrite(rightLED, 50);
+  digitalWrite(leftLED, 50);
+  digitalWrite(rightLED, 50);
 
   myServo.attach(servoPin);
   myServo.write(0);
