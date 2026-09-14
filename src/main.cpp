@@ -29,6 +29,10 @@ vehicle myCar;
 Servo myServo;
 ultrasonic myUltrasonic;
 
+const int RECV_PIN = 4; // Check your specific ESP32 pin in your manual (e.g., 19 or 32)
+bool obstacleAvoidanceEnabled = false; // Toggle state variable 
+
+
 #define leftLED 2
 #define rightLED 12
 #define buzzer 33
@@ -68,7 +72,6 @@ int rightDistance = 0;
   }
   delay(1000);
 }*/
-
 void objectAdvoidise()
 {
   myServo.write(90);
@@ -153,6 +156,35 @@ digitalWrite(leftLED, LOW);
     myCar.Move(Forward, 150);
   }
 }
+/*void remoteChange(){ 
+ // Check if an IR signal is received
+  if (IrReceiver.decode()) {
+    unsigned long irValue = IrReceiver.decodedIRData.decodedRawData;
+    
+    // Print hex code to serial monitor for verification
+    Serial.println(irValue, HEX);
+
+    // Check if the OK button (bf40ff00) is pressed
+    if (irValue == 0xBF40FF00) {
+      obstacleAvoidanceEnabled = !obstacleAvoidanceEnabled; // Toggle ON/OFF state
+      
+      if (!obstacleAvoidanceEnabled) {
+        myCar.Move(Stop, 0); // Stop the car immediately when turned off
+      }
+    }
+    
+    IrReceiver.resume(); // Enable receiving of the next value
+  }
+
+  // Run obstacle avoidance only if toggled ON
+  if (obstacleAvoidanceEnabled) {
+    objectAdvoidise();
+  } else {
+    // Optional: Keep car stopped or add alternative remote manual control code here
+    myCar.Move(Stop, 0);
+  }
+}*/
+
 
 
 void setup()
@@ -169,12 +201,13 @@ void setup()
 
   Serial.begin(115200);
   myUltrasonic.Init(13, 14);
+
+   IrReceiver.begin(RECV_PIN, ENABLE_LED_FEEDBACK);
 }
 
 void loop()
 { // put your main code here, to run repeatedly:
   // ledLights();
   objectAdvoidise();
-
   delay(100);
 }
