@@ -156,9 +156,9 @@ digitalWrite(leftLED, LOW);
     myCar.Move(Forward, 150);
   }
 }
-/*void remoteChange(){ 
- // Check if an IR signal is received
-  if (IrReceiver.decode()) {
+void remoteChange(){
+  // Check if an IR signal is received
+  if (IrReceiver.decode()){
     unsigned long irValue = IrReceiver.decodedIRData.decodedRawData;
     
     // Print hex code to serial monitor for verification
@@ -171,20 +171,10 @@ digitalWrite(leftLED, LOW);
       if (!obstacleAvoidanceEnabled) {
         myCar.Move(Stop, 0); // Stop the car immediately when turned off
       }
-    }
-    
-    IrReceiver.resume(); // Enable receiving of the next value
-  }
+}}
 
-  // Run obstacle avoidance only if toggled ON
-  if (obstacleAvoidanceEnabled) {
-    objectAdvoidise();
-  } else {
-    // Optional: Keep car stopped or add alternative remote manual control code here
-    myCar.Move(Stop, 0);
-  }
-}*/
-
+}
+  
 
 
 void setup()
@@ -203,11 +193,15 @@ void setup()
   myUltrasonic.Init(13, 14);
 
    IrReceiver.begin(RECV_PIN, ENABLE_LED_FEEDBACK);
-}
+  }
+  
+
 
 void loop()
-{ // put your main code here, to run repeatedly:
+ {
+  // put your main code here, to run repeatedly:
   // ledLights();
   objectAdvoidise();
+  remoteChange();
   delay(100);
-}
+ }
