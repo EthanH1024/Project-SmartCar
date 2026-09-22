@@ -38,7 +38,7 @@ bool obstacleAvoidanceEnabled = false; // Toggle state variable
 #define buzzer 33
 #define servoPin 25
 #define IRpin 4
-IRrecv myIRrecv(IRpin);
+
 
 const int fadedelay = 10;
 int UT_distance = 0;
@@ -172,6 +172,7 @@ void remoteChange(){
         myCar.Move(Stop, 0); // Stop the car immediately when turned off
       }
 }}
+IrReceiver.resume(); // CRITICAL: Receive the next value
 
 }
   
@@ -203,5 +204,8 @@ void loop()
   // ledLights();
   objectAdvoidise();
   remoteChange();
+  if (obstacleAvoidanceEnabled) {
+    
+  }
   delay(100);
  }
