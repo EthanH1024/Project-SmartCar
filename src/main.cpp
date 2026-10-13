@@ -34,7 +34,7 @@ bool obstacleAvoidanceEnabled = false; // Toggle state variable
 
 #define leftLED 2
 #define rightLED 12
-#define buzzer 33
+#define buzzer 34
 #define servoPin 25
 #define iRpin 33
 
@@ -92,7 +92,7 @@ void remoteMovement()
   }
 }
 
-/*void objectAdvoidise()
+void objectAdvoidise()
 {
   myServo.write(90);
   middleDistance = myUltrasonic.Ranging();
@@ -176,6 +176,7 @@ digitalWrite(leftLED, LOW);
     myCar.Move(Forward, 150);
   }
 }
+
 void remoteChange(){
   // Check if an IR signal is received
   if (IrReceiver.decode()){
@@ -203,7 +204,8 @@ void remoteChange(){
 }}
 IrReceiver.resume(); // CRITICAL: Receive the next value
 
-}*/
+}
+
 
 void setup()
 {
@@ -213,8 +215,11 @@ void setup()
   digitalWrite(leftLED, 50);
   digitalWrite(rightLED, 50);
 
-  myServo.attach(servoPin);
-  myServo.write(0);
+  myServo.attach(servoPin);objectAdvoidise();
+  remoteChange();
+  if (obstacleAvoidanceEnabled) {
+
+  }
   myCar.Init();
 
   Serial.begin(115200);
@@ -228,11 +233,12 @@ void loop()
 {
   // put your main code here, to run repeatedly:
   // ledLights();
-  /*objectAdvoidise();
+  objectAdvoidise();
   remoteChange();
   if (obstacleAvoidanceEnabled) {
 
-  }*/
+  }
+  
   remoteMovement();
   delay(100);
 }
