@@ -29,7 +29,7 @@ vehicle myCar;
 Servo myServo;
 ultrasonic myUltrasonic;
 
-const int RECV_PIN = 33;               // Check your specific ESP32 pin in your manual (e.g., 19 or 32)
+             // Check your specific ESP32 pin in your manual (e.g., 19 or 32)
 bool obstacleAvoidanceEnabled = false; // Toggle state variable
 
 #define leftLED 2
@@ -53,19 +53,10 @@ int leftDistance = 0;
 int middleDistance = 0;
 int rightDistance = 0;
 
-void remoteMovement()
+void remoteMovement(uint32_t code)
 {
-  if (myiRrecv.decode())
-  {
-    lastCommandTime = millis();
-    current_decode = myiRrecv.decodedIRData.decodedRawData;
-    if (myiRrecv.decodedIRData.flags)
-    {
-      current_decode = last_decode;
-    }
-    Serial.print(current_decode, HEX);
-    Serial.println("");
-    switch (current_decode)
+  
+    switch (code)
     {
     case 0xB946FF00:
       myCar.Move(Forward, Speed);
@@ -83,14 +74,9 @@ void remoteMovement()
       myCar.Move(Move_Right, Speed);
       break;
     }
-    last_decode = current_decode;
-    myiRrecv.resume();
+    
   }
-  if (millis() - lastCommandTime > commandTimeout)
-  {
-    myCar.Move(Stop, 0);
-  }
-}
+
 
 void objectAdvoidise()
 {
@@ -178,31 +164,38 @@ digitalWrite(leftLED, LOW);
 }
 
 void remoteChange(){
-  // Check if an IR signal is received
-  if (IrReceiver.decode()){
-    unsigned long irValue = IrReceiver.decodedIRData.decodedRawData;
-
-    // Print hex code to serial monitor for verification
-    Serial.println(irValue, HEX);
-
-    // Check if the OK button (bf40ff00) is pressed
-    if (irValue == 0xBF40FF00) {
-      obstacleAvoidanceEnabled = !obstacleAvoidanceEnabled; // Toggle ON/OFF state
-
-      if (!obstacleAvoidanceEnabled) {
-         Serial.println("MODE: Object Avoidance Enabled");
-      }
-      else {
-        Serial.println("MODE: Remote Control Enabled");
-          myCar.Move(Stop, 0); // Stop the car immediately when turned off
-      }
-
-     if (!obstacleAvoidanceEnabled) {
-       // example: if (irValue == 0x...) { myCar.Move(Forward, 255); }
+    if (myiRrecv.decode()) {
+    lastCommandTime = millis();
+    current_decode = myiRrecv.decodedIRData.decodedRawData;
+    
+    // Handle repeat flags
+    if (myiRrecv.decodedIRData.flags & IRDATA_FLAGS_IS_REPEAT) {
+      current_decode = last_decode;
     }
-
-}}
-IrReceiver.resume(); // CRITICAL: Receive the next value
+    
+    Serial.print("IR Code Received: 0x");
+    Serial.println(current_decode, HEX);
+    
+    // Check if the Toggle Button (OK) is pressed
+    if (current_decode == 0xBF40FF00) {
+      obstacleAvoidanceEnabled = !obstacleAvoidanceEnabled;
+      myCar.Move(Stop, 0); // Stop immediately during mode switch
+      
+      if (obstacleAvoidanceEnabled) {
+        Serial.println("MODE SWITCH: Autonomous Object Avoidance Enabled");
+      } else {
+        Serial.println("MODE SWITCH: Manual Remote Control Enabled");
+      }
+      delay(300); // Debounce delay
+    } 
+    // If we are in manual mode, pass the code to movement functions
+    else if (!obstacleAvoidanceEnabled) {
+      remoteMovement(current_decode);
+    }
+    
+    last_decode = current_decode;
+    myiRrecv.resume();
+  }
 
 }
 
@@ -233,12 +226,16 @@ void loop()
 {
   // put your main code here, to run repeatedly:
   // ledLights();
-  objectAdvoidise();
+ 
   remoteChange();
-  if (obstacleAvoidanceEnabled) {
 
+  if (obstacleAvoidanceEnabled) {
+ objectAdvoidise();
+  } else{
+    if (millis() - lastCommandTime > commandTimeout) {
+      myCar.Move(Stop, 0);
+    }
   }
   
-  remoteMovement();
   delay(100);
 }
