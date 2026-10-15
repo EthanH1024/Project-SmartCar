@@ -32,11 +32,17 @@ ultrasonic myUltrasonic;
              // Check your specific ESP32 pin in your manual (e.g., 19 or 32)
 bool obstacleAvoidanceEnabled = false; // Toggle state variable
 
+bool rightLEDState = false;
+bool leftLEDState = false;
+
 #define leftLED 2
 #define rightLED 12
 #define buzzer 34
 #define servoPin 25
 #define iRpin 33
+
+
+
 
 unsigned long lastCommandTime;
 const unsigned long commandTimeout = 100;
@@ -188,6 +194,21 @@ void remoteChange(){
       }
       delay(300); // Debounce delay
     } 
+
+// # button: toggle right LED only when ultrasonic is OFF
+    else if (current_decode == 0xB54AFF00 &&
+             !obstacleAvoidanceEnabled) {
+      rightLEDState = !rightLEDState;
+      digitalWrite(rightLED, rightLEDState ? HIGH : LOW);
+    }
+
+    // * button: toggle left LED only when ultrasonic is OFF
+    else if (current_decode == 0xBD42FF00 &&
+             !obstacleAvoidanceEnabled) {
+      leftLEDState = !leftLEDState;
+      digitalWrite(leftLED, leftLEDState ? HIGH : LOW);
+    }
+
     // If we are in manual mode, pass the code to movement functions
     else if (!obstacleAvoidanceEnabled) {
       remoteMovement(current_decode);
@@ -196,6 +217,7 @@ void remoteChange(){
     last_decode = current_decode;
     myiRrecv.resume();
   }
+
 
 }
 
