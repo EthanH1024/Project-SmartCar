@@ -71,10 +71,13 @@ void remoteMovement(uint32_t code)
       myCar.Move(Backward, Speed);
       break;
     case 0xBB44FF00:
-      myCar.Move(Clockwise, Speed);
+      myCar.Move(Contrarotate, Speed);
       break;
     case 0xBC43FF00:
-      myCar.Move(Move_Left, Speed);
+      myCar.Move(Clockwise, Speed);
+      break;
+      case 0xE916FF00: 
+      myCar.Move(Move_Left,Speed);
       break;
     case 0xF20DFF00:
       myCar.Move(Move_Right, Speed);
